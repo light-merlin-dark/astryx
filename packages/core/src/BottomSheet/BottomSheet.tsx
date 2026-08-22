@@ -93,6 +93,27 @@ const styles = stylex.create({
       },
     },
   },
+  /**
+   * The dim leaves with the sheet, on the sheet's exit timing.
+   *
+   * Two reasons it cannot keep the entrance rule. The duration has to match
+   * the panel's or the two disagree about when the sheet is gone: on the
+   * shared 410ms the page would sit undimmed for 100ms with a sheet still
+   * sliding across it. And the curve has to be `linear`, not the decelerate
+   * token — a fade covers no distance, so front-loading its progress just
+   * ends it early (`--ease-standard` puts a fade at 90% in 163ms and then
+   * spends 250ms on the invisible remainder). Same reasoning the touch date
+   * picker's surface swap already carries.
+   */
+  scrimClosing: {
+    '::backdrop': {
+      transitionDuration: durationVars['--duration-medium-min'],
+      transitionTimingFunction: 'linear',
+      '@media (prefers-reduced-motion: reduce)': {
+        transitionDuration: '0.01s',
+      },
+    },
+  },
   positioner: {
     position: 'absolute',
     insetInline: 0,
@@ -327,6 +348,7 @@ function StandaloneBottomSheet({
         styles.dialog,
         shouldPresent && styles.dialogOpen,
         hasScrim && styles.scrim,
+        hasScrim && !isOpen && isPresented && styles.scrimClosing,
         !hasScrim && styles.dialogNonModal,
       )}
       ref={dialogRef}

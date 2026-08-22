@@ -149,8 +149,31 @@ const styles = stylex.create({
       transitionDuration: '0.01s',
     },
   },
+  /**
+   * The exit is its own motion, not the entrance played backwards.
+   *
+   * `--ease-standard` is `cubic-bezier(0.24, 1, 0.4, 1)`, a decelerate curve:
+   * it spends its speed immediately and coasts. That is right for an entrance,
+   * where the sheet arrives fast and settles. Run the exit on it and the sheet
+   * is half gone in 59ms of the 410ms transition and 90% gone in 163ms —
+   * measured on device, the last 250ms move pixels that are already below the
+   * fold. What anyone watching sees is the sheet vanishing on the tap, which
+   * is the report this fixes: closing by the scrim (or Done, or Escape) read
+   * as no animation at all.
+   *
+   * An exit accelerates instead: the sheet holds for a beat, gathers speed,
+   * and is quickest as it leaves the screen. Paired with the shorter duration
+   * band, because an accelerating curve puts the visible travel at the end and
+   * the full `medium` would leave the finger waiting through a still frame.
+   * Same distance, and now it takes the time it says it does.
+   */
   sheetClosing: {
     transform: 'translateY(100%)',
+    transitionDuration: durationVars['--duration-medium-min'],
+    transitionTimingFunction: 'cubic-bezier(0.4, 0, 1, 1)',
+    '@media (prefers-reduced-motion: reduce)': {
+      transitionDuration: '0.01s',
+    },
   },
   sheetFading: {
     opacity: 0,

@@ -103,6 +103,19 @@ const styles = stylex.create({
       },
     },
   },
+  // The flow's dim leaves with its last panel, on the panel's exit timing.
+  // Same rule, and the same reasoning, as a standalone sheet's — see
+  // `scrimClosing` in BottomSheet.tsx. A handoff between two sheets is not a
+  // close and keeps the entrance timing: the dim never moves there.
+  scrimClosing: {
+    '::backdrop': {
+      transitionDuration: durationVars['--duration-medium-min'],
+      transitionTimingFunction: 'linear',
+      '@media (prefers-reduced-motion: reduce)': {
+        transitionDuration: '0.01s',
+      },
+    },
+  },
 });
 
 type RetainedSheetPhase = 'covered' | 'aligning' | 'fading' | 'exiting';
@@ -593,6 +606,7 @@ export function BottomSheetSwitcher({
     styles.dialog,
     isFlowVisible && styles.dialogOpen,
     hasScrim && styles.scrim,
+    hasScrim && isFlowVisible && activeSheet == null && styles.scrimClosing,
     !hasScrim && styles.dialogNonModal,
     xstyle,
   );
