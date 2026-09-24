@@ -632,6 +632,46 @@ describe('DropdownMenu', () => {
     expect(button).toHaveAttribute('aria-expanded', 'false');
   });
 
+  it('references the menu from the trigger only while expanded', async () => {
+    const user = userEvent.setup();
+    render(
+      <DropdownMenu button={{label: 'Actions'}} items={[{label: 'Item 1'}]} />,
+    );
+
+    const trigger = screen.getByRole('button', {name: /Actions/});
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger).not.toHaveAttribute('aria-controls');
+
+    await user.click(trigger);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger).toHaveAttribute(
+      'aria-controls',
+      screen.getByRole('menu', {hidden: true}).id,
+    );
+
+    await user.keyboard('{Escape}');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger).not.toHaveAttribute('aria-controls');
+  });
+
+  it('never gives the bottom-sheet trigger a controls reference', async () => {
+    const user = userEvent.setup();
+    render(
+      <DropdownMenu
+        button={{label: 'Actions'}}
+        presentation="bottom-sheet"
+        items={[{label: 'Item 1'}]}
+      />,
+    );
+
+    const trigger = screen.getByRole('button', {name: /Actions/});
+    expect(trigger).not.toHaveAttribute('aria-controls');
+
+    await user.click(trigger);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger).not.toHaveAttribute('aria-controls');
+  });
+
   it('opens menu when button is clicked', async () => {
     const user = userEvent.setup();
     render(

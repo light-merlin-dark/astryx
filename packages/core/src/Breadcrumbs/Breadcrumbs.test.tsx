@@ -427,6 +427,30 @@ describe('BreadcrumbItem menu', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
   });
 
+  it('references the menu from the trigger only while expanded', async () => {
+    const user = userEvent.setup();
+    render(
+      <Breadcrumbs>
+        <BreadcrumbItem menu={items}>Teams</BreadcrumbItem>
+        <BreadcrumbItem isCurrent>Overview</BreadcrumbItem>
+      </Breadcrumbs>,
+    );
+
+    const trigger = screen.getByRole('button', {name: 'Teams'});
+    expect(trigger).not.toHaveAttribute('aria-controls');
+
+    await user.click(trigger);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(trigger).toHaveAttribute(
+      'aria-controls',
+      screen.getByRole('menu', {hidden: true}).id,
+    );
+
+    await user.keyboard('{Escape}');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(trigger).not.toHaveAttribute('aria-controls');
+  });
+
   it('labels the menu from non-string trigger content', async () => {
     const user = userEvent.setup();
     render(

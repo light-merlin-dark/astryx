@@ -21,6 +21,9 @@
  * (APG menu-button); a pointer open focuses the menu container itself so no
  * item reads as pre-selected, and the first ArrowDown then moves to item 1.
  *
+ * The popover trigger carries `aria-controls` only while the menu is expanded,
+ * matching DropdownMenuSubMenu's trigger.
+ *
  * SYNC: When modified, update these files to stay in sync:
  * - /packages/core/src/DropdownMenu/DropdownMenu.doc.mjs
  * - /packages/core/src/DropdownMenu/DropdownMenu.test.tsx
@@ -929,7 +932,11 @@ function DropdownMenuPopover({
         onKeyDown={handleButtonKeyDown}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        aria-controls={menuId}
+        // Reference the menu only while expanded, as DropdownMenuSubMenu does.
+        // A collapsed menu button needs no controls relationship, and axe
+        // cannot verify one on an `aria-haspopup` trigger, so it would flag
+        // every closed menu for manual review.
+        aria-controls={isOpen ? menuId : undefined}
         data-testid={testId}
       />
 

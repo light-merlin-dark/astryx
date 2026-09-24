@@ -13,7 +13,9 @@
  *
  * A `menu` prop turns the item's link-styled button into a menu trigger whose
  * popover reuses DropdownMenu's item pipeline — the same wiring ContextMenu
- * uses — so menu-item definitions are portable across the menu family.
+ * uses — so menu-item definitions are portable across the menu family. Like
+ * DropdownMenu, the trigger carries `aria-controls` only while the menu is
+ * expanded.
  *
  * SYNC: When modified, update these files to stay in sync:
  * - /packages/core/src/Breadcrumbs/Breadcrumbs.doc.mjs
@@ -633,7 +635,8 @@ function BreadcrumbMenuTrigger({
         {...popover.triggerProps}
         id={triggerId}
         aria-haspopup="menu"
-        aria-controls={menuId}
+        // Reference the menu only while expanded, matching DropdownMenu.
+        aria-controls={popover.isOpen ? menuId : undefined}
         aria-current={isCurrent ? 'page' : undefined}
         {...mergeProps(
           themeProps('breadcrumb-item-menu-trigger', {variant}),
